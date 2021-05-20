@@ -5,10 +5,20 @@ import chardet
 
 # 按 ⌃R 执行或将其替换为您的代码。
 # 按 双击 ⇧ 在所有地方搜索类、文件、工具窗口、操作和设置。
+#1.2 1.3 
 def check_query(filename, query):
     with open(filename, 'r', encoding='UTF-8')as f:
         s = f.read()
         return query in s
+
+#1.9
+def get_string_form_file(filename):
+    with open(filename, 'rb') as f :
+      d=f.read()
+      e = chardet.detect(d)['encoding']
+      if e == None:
+        e='UTF-8'
+      return e
 
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
@@ -48,4 +58,5 @@ if __name__ == '__main__':
   '''1.8
   print(chardet.detect('京'.encode('EUC-JP')))
   '''
+
 # 访问 https://www.jetbrains.com/help/pycharm/ 获取 PyCharm 帮助
