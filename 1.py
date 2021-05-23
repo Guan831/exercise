@@ -1,12 +1,9 @@
-# 这是一个示例 Python 脚本。
 from io import StringIO
 import re
 from collections import Counter
+from typing import Pattern
 import chardet
 
-# 按 ⌃R 执行或将其替换为您的代码。
-# 按 双击 ⇧ 在所有地方搜索类、文件、工具窗口、操作和设置。
-#1.2 1.3 
 def check_query(filename, query):
     with open(filename, 'r', encoding='UTF-8')as f:
         s = f.read()
@@ -34,8 +31,17 @@ def get_ngram(string , N=1):
 def get_most_common_ngram(filename,N=1,k=1):
   s=get_string_form_file(filename)
   return Counter(get_ngram(s,N=N)).most_common(k)
-  
-# 按间距中的绿色按钮以运行脚本。
+
+#1.22
+def get_snippet_form_filr(filrname,query,width=2):
+  s=get_string_form_file(filrname)
+  p='.{0,%d}%s.{0,%d}'%(width,query,width)
+  r=re.search(p,s)
+  if r:
+    return r.group(0)
+  else:
+    return None
+
 if __name__ == '__main__':
   '''1.1
     query = '京都'
@@ -85,6 +91,56 @@ if __name__ == '__main__':
   print(get_ngram(string,N=1))
   print(get_ngram(string,N=2))
   '''
-
-
-# 访问 https://www.jetbrains.com/help/pycharm/ 获取 PyCharm 帮助
+  '''1.14
+  print(get_most_common_ngram('data/ch01/melos.txt',N=3,k=5))
+  print(get_most_common_ngram('data/ch01/album.txt',N=3,k=5))
+  '''
+  '''1.15
+  string = 'やっぱり『つぶ餡』が好き'
+  pattern = '『.*』'
+  result=re.search(pattern,string)
+  print(result.group(0))
+  '''
+  '''1.16
+  string = 'やっぱり『つぶ餡』が好き'
+  pattern = '『(.*)』'
+  result=re.search(pattern,string)
+  print(result.group(1))
+  '''
+  '''1.17
+  string = 'やっぱり『つぶ餡』が好き'
+  pattern = '『((..).*)』'
+  result=re.search(pattern,string)
+  print(result.group(1))
+  print(result.group(2))
+  '''
+  '''1.18
+  string='このばたもちはとてももちもちしている'
+  pattern=r'(..)\1'
+  result=re.search(pattern,string)
+  print(result.group(0))
+  '''
+  '''1.19
+  string='『つぶ餡』にするか『こし餡』にするか'
+  pattern='『(.*)』'
+  result=re.search(pattern,string)
+  print(result.group(1))
+  '''
+  '''1.20
+  string='『つぶ餡』にするか『こし餡』にするか'
+  pattern='『(.*?)』'
+  result=re.search(pattern,string)
+  print(result.group(1))
+  '''
+  '''1.21
+  string='『つぶ餡』にするか『こし餡』にするか'
+  pattern='『(.*?)』'
+  result=re.findall(pattern,string)
+  print(result)
+  '''
+  '''1.23
+  query='京都'
+  filr_list=['data/ch01/%02d.txt'%x for x in (1,2,3,4)]
+  for f in filr_list:
+    print(f,get_snippet_form_filr(f,query,width=6))
+  '''
