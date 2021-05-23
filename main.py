@@ -1,4 +1,5 @@
 # 这是一个示例 Python 脚本。
+from io import StringIO
 import re
 from collections import Counter
 import chardet
@@ -18,8 +19,22 @@ def get_string_form_file(filename):
       e = chardet.detect(d)['encoding']
       if e == None:
         e='UTF-8'
-      return e
+      return d.decode(e)
 
+#1.10
+def chenck_encoding_and_query(filename,query):
+  s= get_string_form_file(filename)
+  return query in s
+
+#1.11
+def get_ngram(string , N=1):
+  return [string[i:i+N] for i in range(len(string)-N+1) ]
+
+#1.13
+def get_most_common_ngram(filename,N=1,k=1):
+  s=get_string_form_file(filename)
+  return Counter(get_ngram(s,N=N)).most_common(k)
+  
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
   '''1.1
@@ -58,5 +73,18 @@ if __name__ == '__main__':
   '''1.8
   print(chardet.detect('京'.encode('EUC-JP')))
   '''
+  '''1.11
+  file_list = ['data/ch01/%02d.txt' % x for x in (1, 2, 3, 4)]
+  query = '京都'
+  for f in file_list:
+    r =chenck_encoding_and_query(f,query)
+    print('{} in {}...{}'.format(query, f, r))
+  '''
+  '''1.12
+  string = '情报检索'
+  print(get_ngram(string,N=1))
+  print(get_ngram(string,N=2))
+  '''
+
 
 # 访问 https://www.jetbrains.com/help/pycharm/ 获取 PyCharm 帮助
