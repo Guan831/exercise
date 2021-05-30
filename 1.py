@@ -43,13 +43,13 @@ def get_snippet_form_filr(filrname,query,width=2):
     return None
 
 if __name__ == '__main__':
-  '''1.1
-    query = '京都'
-    s1 = '清水寺在京都'
-    s2 = '浅草寺在东京'
-    print(query in s1)
-    print(query in s2)
-  '''
+  ''' 1.1'''
+  query = '京都'
+  s1 = '清水寺在京都'
+  s2 = '浅草寺在东京'
+  print(query in s1)
+  print(query in s2)
+  ''' '''
   '''1.2
   print(check_query('清水寺在京都','京都'))
   print(check_query('浅草寺在东京', '京都'))
