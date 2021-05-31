@@ -112,7 +112,7 @@ def plot_frequency(count,log_scale=False):
   else:
     plt.plot(x,y)
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
   '''2.1
   string = get_string_form_file('data/ch02/alice.txt')
   tokens = re.split('[ \n\.]+',string)
@@ -156,4 +156,6 @@ if __name__ == '__main__':
   font=get_japanese_fonts()[0]
   creat_wordcloud(count,font)
   '''
+  '''2.13
   plot_frequency(Counter(get_words(get_string_form_file('data/ch01/melos.txt'))))
+  '''
