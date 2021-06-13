@@ -84,9 +84,9 @@ def get_weights(bows,dic,tfidf_model,surface=False,N=1000):
         return weights
 #3.15
 def translate_bows(bows,table):
-    return [[tuple(table[j[0],j[1]]) for j in i if j[0] in table ]for i in bows]
+    return [[tuple([table[j[0]],j[1]]) for j in i if j[0] in table ]for i in bows]
 
-def  get_tfifmodel_and_weights(texts,use_aozora=True,pos=['名詞']):
+def  get_tfidmodel_and_weights(texts,use_aozora=True,pos=['名詞']):
     if use_aozora:
         dic,bows=load_aozora_corpus()
     else :
@@ -95,6 +95,7 @@ def  get_tfifmodel_and_weights(texts,use_aozora=True,pos=['名詞']):
     text_docs=[get_words(text,keep_pos=pos)for text in texts]
     text_bows=[dic.doc2bow(d,allow_update=True) for d in text_docs]
     bows.extend(text_bows)
+
     text_ids=list(set ([text_bows[i][j][0] for i in range(len(text_bows)) 
                                             for j in range(len(text_bows[i]))]))
 
@@ -170,6 +171,9 @@ if __name__ == '__main__':
     font=get_japanese_fonts()[0]
     creat_wordcloud(count,font)
     '''
+    book_texts=[get_string_form_file('data/ch04/%d.txt' %i ) for i in range(10)]
+
+    tfidf_model , dic , book_weights =get_tfidmodel_and_weights(book_texts)
 
 
 
