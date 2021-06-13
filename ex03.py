@@ -171,9 +171,6 @@ if __name__ == '__main__':
     font=get_japanese_fonts()[0]
     creat_wordcloud(count,font)
     '''
-    book_texts=[get_string_form_file('data/ch04/%d.txt' %i ) for i in range(10)]
-
-    tfidf_model , dic , book_weights =get_tfidmodel_and_weights(book_texts)
 
 
 
