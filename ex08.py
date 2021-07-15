@@ -1,5 +1,4 @@
 from typing import Text
-
 from gensim.similarities.docsim import MatrixSimilarity
 import ex07
 import ex06

@@ -8,112 +8,127 @@ from janome.tokenfilter import POSKeepFilter
 from ex02 import *
 from ex01 import *
 from pprint import pprint
-from gensim import corpora
-from gensim import models
+from gensim import models, corpora
 import copy
-from collections  import Counter
+from collections import Counter
 
-#3.3
-def get_words(string,keep_pos=None):
-    filters=[]
+# 3.3
+
+
+def get_words(string, keep_pos=None):
+    filters = []
     if keep_pos is None:
         filters.append(POSStopFilter(['記号']))
-    else :
+    else:
         filters.append(POSKeepFilter(keep_pos))
     filters.append(ExtractAttributeFilter('surface'))
-    a =Analyzer(token_filters=filters)
+    a = Analyzer(token_filters=filters)
     return list(a.analyze(string))
-#3.9
-def build_corpus(file_list,dic_file=None,courpus_file=None):
-    docs=[]
+# 3.9
+
+
+def build_corpus(file_list, dic_file=None, courpus_file=None):
+    docs = []
     for f in file_list:
         text = get_string_form_file(f)
-        words= get_words(text,keep_pos=['名詞'])
+        words = get_words(text, keep_pos=['名詞'])
         docs.append(words)
 
         print(f)
-    dic=corpora.Dictionary(docs)
+    dic = corpora.Dictionary(docs)
     if not (dic_file is None):
         dic.save(dic_file)
-    bows=[dic.doc2bow(d) for d in docs]
+    bows = [dic.doc2bow(d) for d in docs]
     if not (courpus_file is None):
-        corpora.MmCorpus.serialize(courpus_file,bows)
+        corpora.MmCorpus.serialize(courpus_file, bows)
     return dic, bows
-#3.10
+# 3.10
+
+
 def bows_to_cfs(bows):
-    cfs=dict()
+    cfs = dict()
     for b in bows:
-        for id , f in b:
+        for id, f in b:
             if not id in cfs:
-                cfs[id]=0
-            cfs[id]+=int(f)
+                cfs[id] = 0
+            cfs[id] += int(f)
     return cfs
-def load_dictionaty_any_corpus(dic_file,corpus_file):
+
+
+def load_dictionaty_any_corpus(dic_file, corpus_file):
     dic = corpora.Dictionary.load(dic_file)
     bows = list(corpora.MmCorpus(corpus_file))
-    if not hasattr(dic,'cfs'):
-        dic.cfs=bows_to_cfs(bows)
+    if not hasattr(dic, 'cfs'):
+        dic.cfs = bows_to_cfs(bows)
     return dic, bows
-#3.12
-def load_aozora_corpus():
-    return load_dictionaty_any_corpus('data/aozora/aozora.dic','data/aozora/aozora.mm')
+# 3.12
 
-def get_bows(texts,dic,allow_update=False):
-    bows=[]
+
+def load_aozora_corpus():
+    return load_dictionaty_any_corpus('data/aozora/aozora.dic', 'data/aozora/aozora.mm')
+
+
+def get_bows(texts, dic, allow_update=False):
+    bows = []
     for text in texts:
-        words=get_words(text,keep_pos=['名詞'])
-        bow= dic.doc2bow(words,allow_update=allow_update)
+        words = get_words(text, keep_pos=['名詞'])
+        bow = dic.doc2bow(words, allow_update=allow_update)
         bows.append(bow)
     return bows
 
-def add_to_corpus(texts,dic,bows,replicate=False):
+
+def add_to_corpus(texts, dic, bows, replicate=False):
     if replicate:
-        dic=copy.copy(dic)
-        bows=copy.copy(bows)
-    texts_bows=get_bows(texts,dic,allow_update=True)
+        dic = copy.copy(dic)
+        bows = copy.copy(bows)
+    texts_bows = get_bows(texts, dic, allow_update=True)
     bows.extend(texts_bows)
-    return dic,bows,texts_bows
+    return dic, bows, texts_bows
 
-#3.13
-def get_weights(bows,dic,tfidf_model,surface=False,N=1000):
-    weights=tfidf_model[bows]
-    weihgts=[sorted(w,key=lambda x:x[1],reverse=True)[:N] for w in weights]
+# 3.13
+
+
+def get_weights(bows, dic, tfidf_model, surface=False, N=1000):
+    weights = tfidf_model[bows]
+    weihgts = [sorted(w, key=lambda x:x[1], reverse=True)[:N] for w in weights]
     if surface:
-        return [[(dic[x[0]],x[1]) for x in w]for w in weights]
-    else :
+        return [[(dic[x[0]], x[1]) for x in w]for w in weights]
+    else:
         return weights
-#3.15
-def translate_bows(bows,table):
-    return [[tuple([table[j[0]],j[1]]) for j in i if j[0] in table ]for i in bows]
+# 3.15
 
-def  get_tfidmodel_and_weights(texts,use_aozora=True,pos=['名詞']):
+
+def translate_bows(bows, table):
+    return [[tuple([table[j[0]], j[1]]) for j in i if j[0] in table]for i in bows]
+
+
+def get_tfidmodel_and_weights(texts, use_aozora=True, pos=['名詞']):
     if use_aozora:
-        dic,bows=load_aozora_corpus()
-    else :
+        dic, bows = load_aozora_corpus()
+    else:
         dic = corpora.Dictionary()
-        bows=[]
-    text_docs=[get_words(text,keep_pos=pos)for text in texts]
-    text_bows=[dic.doc2bow(d,allow_update=True) for d in text_docs]
+        bows = []
+    text_docs = [get_words(text, keep_pos=pos)for text in texts]
+    text_bows = [dic.doc2bow(d, allow_update=True) for d in text_docs]
     bows.extend(text_bows)
 
-    text_ids=list(set ([text_bows[i][j][0] for i in range(len(text_bows)) 
-                                            for j in range(len(text_bows[i]))]))
+    text_ids = list(set([text_bows[i][j][0] for i in range(len(text_bows))
+                         for j in range(len(text_bows[i]))]))
 
-    text_tokens=[dic[i] for i in text_ids]
+    text_tokens = [dic[i] for i in text_ids]
     dic.filter_tokens(good_ids=text_ids)
-    
-    id2id=dict()
+
+    id2id = dict()
     for i in range(len(text_ids)):
-        id2id[text_ids[i]]=dic.token2id[text_tokens[i]]
-    
-    bows=translate_bows(bows,id2id)
-    text_bows=translate_bows(text_bows,id2id)
+        id2id[text_ids[i]] = dic.token2id[text_tokens[i]]
 
-    tfidf_model=models.TfidfModel(bows,normalize=True)
+    bows = translate_bows(bows, id2id)
+    text_bows = translate_bows(text_bows, id2id)
 
-    text_weights=get_weights(text_bows,dic,tfidf_model)
-    return tfidf_model,dic, text_weights
+    tfidf_model = models.TfidfModel(bows, normalize=True)
 
+    text_weights = get_weights(text_bows, dic, tfidf_model)
+    return tfidf_model, dic, text_weights
 
 
 if __name__ == '__main__':
@@ -171,6 +186,3 @@ if __name__ == '__main__':
     font=get_japanese_fonts()[0]
     creat_wordcloud(count,font)
     '''
-
-
-
